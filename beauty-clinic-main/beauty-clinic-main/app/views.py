@@ -294,6 +294,12 @@ class CreateOrderAPIView(CreateAPIView):
         if product is None:
             return Response({'message': 'Product not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if quantity <= 0:
+            return Response({'message': 'Invalid quantity.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if quantity > product.stock:
+            return Response({'message': 'Not enough stock available.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Calculate the price based on the product's price and the quantity
         price = product.price * int(quantity)
 

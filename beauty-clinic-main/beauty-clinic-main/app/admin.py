@@ -12,7 +12,8 @@ from django.utils.html import format_html
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'category', 'price', 'thumb')
+    list_display = ('name', 'description', 'category', 'price', 'stock', 'thumb')
+    list_editable = ('price', 'stock')
 
     def thumb(self, obj):
         return format_html("<img src='{}'  width='48' height='48' />".format(obj.thumbnail.url))
