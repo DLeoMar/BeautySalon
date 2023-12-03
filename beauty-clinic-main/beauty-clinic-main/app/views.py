@@ -54,6 +54,8 @@ from django.core.mail import send_mail
 from django.contrib.sessions.models import Session
 from datetime import datetime, timedelta
 from django.utils import timezone
+from rest_framework.response import Response
+from rest_framework import status
 query_watch = None
 
 @api_view(['GET', ])
@@ -288,19 +290,9 @@ class CreateOrderAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         product_id = request.data.get('product_id')
-        quantity = request.data.get('quantity')
+        quantity = int(request.data.get('quantity', 0))
         product = Product.objects.filter(id=product_id).first()
 
-        
-
-        if product is None:
-            return Response({'message': 'Product not found.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if quantity <= 0:
-            return Response({'message': 'Invalid quantity.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if quantity > product.stock:
-            return Response({'message': 'Not enough stock available.'}, status=status.HTTP_400_BAD_REQUEST)
         # Calculate the price based on the product's price and the quantity
         price = product.price * int(quantity)
 

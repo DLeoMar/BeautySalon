@@ -50,17 +50,19 @@
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">{{ product.description }}</p>
                         </div>
-                        <div class="card-footer">
-                            <a href="#" data-product="{{product.id}}" class="btn btn-info w-100"  data-bs-toggle="modal" data-bs-target="#exampleModal">₱{{ product.price }}<br>Buy now</a>
-                          </div>
+                        <<div class="card-footer">
+                            {% if product.stock > 0 %}
+                                <a href="#" data-product="{{product.id}}" class="btn btn-info w-100"  data-bs-toggle="modal" data-bs-target="#exampleModal">₱{{ product.price }}<br>Buy now</a>
+                            {% else %}
+                                <button class="btn btn-secondary w-100" disabled>Out of stock</button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
                 </div>
             </section>
-        </div>
-        
-        
+        </div>  
     </div>
 
 
@@ -109,7 +111,17 @@
           </div>
         </div>
       </div>
-
+      
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInput = document.getElementById('quantity');
+            const productStockText = document.getElementById('product-stock').textContent;
+            const stockValue = parseInt(productStockText.split(': ')[1].trim());
+    
+            quantityInput.setAttribute('max', stockValue);
+        });
+    </script>
+    
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js" integrity="sha512-jEJ0OA9fwz5wUn6rVfGhAXiiCSGrjYCwtQRUwI/wRGEuWRZxrnxoeDoNc+Pnhx8qwKVHs2BRQrVR9RE6T4UHBg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -142,6 +154,7 @@
                     $("input[name='product_id']").val(data.id);
                     var quantityInput = document.getElementById("quantity");
                     quantityInput.value = 1;
+                    $("#quantity").attr('max', data.stock);
                     updateTotalPrice(data.price);
                     $('input[name="discount"]').val(data.discount);
                     $('input[name="price"]').val(data.price);
@@ -151,6 +164,7 @@
                 }
             });
         }
+        
 
         function updateTotalPrice(basePrice){
             let quantity = $('#quantity').val();
@@ -178,8 +192,11 @@
             const myModal = document.getElementById('exampleModal')
 
             myModal.addEventListener('shown.bs.modal', (event) => {
+                
+
                 let id = event.relatedTarget.getAttribute('data-product');
                 getProductInfo(id);
+                
             })
 
             const container = document.getElementById('lightgallery');
