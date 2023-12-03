@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% load static %} {% block mycss %} {{ block.super }}
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+{% endblock mycss %} {% load crispy_forms_tags %} {% block content %}
+
+<section id="verification" class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-md-8  mx-auto">
+        <div class="card">
+          <div class="card-header bg-warning text-black">
+            <h4><i class="fas fa-sign-in-alt"></i> Register</h4>
+          </div>
+          <div class="card-body" id="registerForm">
+            <form method="post">
+                {% csrf_token %}
+                {{ verification_form.as_p }}
+                <input type="submit" value="Submit">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
