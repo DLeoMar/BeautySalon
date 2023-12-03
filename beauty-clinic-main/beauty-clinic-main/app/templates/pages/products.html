@@ -78,12 +78,14 @@
                     <h2 id="product-name"></h2>
                     <img id="product-thumbnail" class="img-fluid w-25" src="{% static 'logo/logo.png' %}" alt="Product Image">
                     <p id="product-description"></p>
-                    <p id="product-price" class="fw-bolder"></p>
+                    <p id="product-price" class="fw-bolder">Price: </p>
+                    <p id="product-stock" class="fw-bolder">Stock: </p>
                     
 
                     {% csrf_token %}
                     <input type="text" name="product_id" hidden/>
                     <input type="number" name="price" hidden/>
+                    <input type="number" name="stock" hidden/>
                     <input type="number" name="discount" hidden/>
                     
 
@@ -135,7 +137,8 @@
                     $("#product-thumbnail").attr('src', data.thumbnail);
                     $("#product-name").text(data.name);
                     $("#product-description").text(data.description);
-                    $("#product-price").text(`₱${data.price}`);
+                    $("#product-price").text(`Price: ₱${data.price}`);
+                    $("#product-stock").text(`Stock: ${data.stock}`);
                     $("input[name='product_id']").val(data.id);
                     var quantityInput = document.getElementById("quantity");
                     quantityInput.value = 1;

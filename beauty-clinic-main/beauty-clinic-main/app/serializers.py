@@ -59,7 +59,7 @@ class ServiceSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['id', 'name', 'description', 'price', 'discount', 'stock']
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:

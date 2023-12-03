@@ -291,6 +291,8 @@ class CreateOrderAPIView(CreateAPIView):
         quantity = request.data.get('quantity')
         product = Product.objects.filter(id=product_id).first()
 
+        
+
         if product is None:
             return Response({'message': 'Product not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -299,7 +301,6 @@ class CreateOrderAPIView(CreateAPIView):
 
         if quantity > product.stock:
             return Response({'message': 'Not enough stock available.'}, status=status.HTTP_400_BAD_REQUEST)
-        
         # Calculate the price based on the product's price and the quantity
         price = product.price * int(quantity)
 
@@ -308,6 +309,7 @@ class CreateOrderAPIView(CreateAPIView):
             'customer': request.user.id,
             'product': product_id,
             'quantity': quantity,
+            'stock': product.stock,
             'price': price,
             'discount': product.discount
         }
