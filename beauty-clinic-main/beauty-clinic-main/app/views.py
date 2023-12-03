@@ -22,7 +22,7 @@ from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from app.context_processors import CONTEXT
 from app.forms import AppointmentForm, NewUserForm, OrderForm
-from app.models import Appointment, CustomUser, Customer, Gender, Order, Product, Service
+from app.models import Appointment, CheckoutHistory, CustomUser, Customer, Gender, Order, Product, Service
 from app.tables import AppointmentTable, OrderTable
 from .serializers import GenderDistributionSerializer, OrderSerializer, ProductSerializer, ServiceAppointmentCountSerializer, CustomUserSerializer, CustomerImageSerializer, CustomerSerializer, ServiceSerializer
 from rest_framework import viewsets, mixins, generics
@@ -66,7 +66,13 @@ def customer_list(request):
         customers_serializer = CustomerSerializer(customers, many=True)
         return JsonResponse(customers_serializer.data, safe=False)
 
+class CheckoutHistoryView(ListView):
+    model = Order
+    template_name = 'pages/checkOut.html'
+    context_object_name = 'checkout-history'
 
+    def get_queryset(self):
+        return Order.objects.filter(customer__email=self.request.user.email)
 
 
 class CustomerViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
@@ -243,26 +249,78 @@ def services(request):
 def about(request):
     return render(request, 'pages/about.html')
 
-class OrdertListView(LoginRequiredMixin, SingleTableView):
+
+class OrdertListView(ListView):
     model = Order
-    table_class = OrderTable
     template_name = 'pages/orders.html'
-    per_page = 8
+    context_object_name = 'orders'
 
-
-    def get_table_data(self):
-
+    def get_queryset(self):
         return Order.objects.filter(customer__email=self.request.user.email)
-    
-    def get_context_data(self, **kwargs):
-        context = super(OrdertListView, self).get_context_data(**kwargs)
-        
-        context['form'] = OrderForm()
-            
-        return context
 
-# def generate_random_color():
-#     return f"rgba({random.randrange(0, 255)}, {random.randrange(0, 255)}, {random.randrange(0, 255)}, 1)"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        orders = self.get_queryset()
+        total_price = orders.aggregate(total_price=Sum('price'))['total_price'] or 0
+        total_discount = orders.aggregate(total_discount=Sum('discount'))['total_discount'] or 0
+        total_quantity = orders.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+
+        context['total_price'] = total_price
+        context['total_discount'] = total_discount
+        context['total_quantity'] = total_quantity
+        
+        return context
+    
+
+def checkout(request):
+    # Get products in the cart for the current user
+    customer = request.user 
+    cart_items = Order.objects.filter(customer=customer)
+
+    total_price = 0
+    total_discount = 0  # Calculate discount logic
+    total_quantity = 0
+
+    # Calculate total price and quantity for the items in the cart
+    for item in cart_items:
+        total_price += item.product.price * item.quantity
+        total_quantity += item.quantity
+
+    # Create a record in CheckoutHistory for the current checkout
+    CheckoutHistory.objects.create(
+        user=request.user,
+        total_price=total_price,
+        date_of_checkout=datetime.now(),
+        discount=total_discount,
+        total_quantity=total_quantity,
+        # Add other fields as needed
+    )
+
+    cart_items.delete()  # Remove the products from the cart after checkout
+    
+    # Redirect to a success page or the checkout history page
+    return render(request, 'pages/checkOut.html')
+
+def checkout_page(request):
+    # Fetch CheckoutHistory data
+    checkout_history_data = CheckoutHistory.objects.filter(user=request.user)
+    for checkout_item in checkout_history_data:
+        checkout_item.date_of_checkout = timezone.make_aware(checkout_item.date_of_checkout)
+
+    # Pass checkout_history to the template
+    return render(request, 'pages/checkOut.html', {'checkout_history_data': checkout_history_data})
+
+# class OrdertListView(ListView):
+#     model = Order
+#     template_name = 'pages/orders.html'
+#     context_object_name = 'orders'
+
+#     def get_queryset(self):
+#         return Order.objects.filter(customer__email=self.request.user.email)
+
+# # def generate_random_color():
+# #     return f"rgba({random.randrange(0, 255)}, {random.randrange(0, 255)}, {random.randrange(0, 255)}, 1)"
 
    
     

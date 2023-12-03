@@ -50,7 +50,7 @@
                             <h5 class="card-title">{{ product.name }}</h5>
                             <p class="card-text">{{ product.description }}</p>
                         </div>
-                        <<div class="card-footer">
+                        <div class="card-footer">
                             {% if product.stock > 0 %}
                                 <a href="#" data-product="{{product.id}}" class="btn btn-info w-100"  data-bs-toggle="modal" data-bs-target="#exampleModal">₱{{ product.price }}<br>Buy now</a>
                             {% else %}

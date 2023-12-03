@@ -49,6 +49,9 @@ urlpatterns = [
     # path('products', views.ProductsAndOrderView.as_view(), name='products'),
     
     path('products/', views.ProductsAndOrderView.as_view(), name='products'),
+    path('checkout-history/', views.CheckoutHistoryView.as_view(), name='checkout_history'),
+     path('checkout/', views.checkout, name='checkout'),
+     
 
     # URL pattern for creating an order
     path('create-order/', views.CreateOrderAPIView.as_view(), name='create_order'),

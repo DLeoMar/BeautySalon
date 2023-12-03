@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 
 import os
@@ -149,6 +150,12 @@ class Order(models.Model):
     payment_method = models.PositiveSmallIntegerField(choices=Payment.choices, default=Payment.CASH)
     date = models.DateTimeField(auto_now_add=True, null=True)
 
+class CheckoutHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True,)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    date_of_checkout = models.DateTimeField(default=timezone.now)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    total_quantity = models.PositiveIntegerField(default=0)
 
 class AppointmentActions(models.IntegerChoices):
     PENDING = 0, "Pending"
