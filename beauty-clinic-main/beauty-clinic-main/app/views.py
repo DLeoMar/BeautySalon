@@ -161,11 +161,19 @@ class MyLoginView(LoginView):
     redirect_authenticated_user=True
     template_name='registration/login.html'
 
-    def get_success_url(self):
-        # write your logic here
-        # if self.request.user.is_superuser:
-        return reverse('index')# '/progress/'
-        # return '/'
+    def form_valid(self, form):
+        # Check if the user is authenticated and verified
+        if self.request.user.is_authenticated and self.request.user.is_verified:
+            return super().form_valid(form)
+        else:
+            messages.error(self.request, 'Please verify your account before logging in.')
+            return redirect('verification_page')
+
+    # def get_success_url(self):
+    #     # write your logic here
+    #     # if self.request.user.is_superuser:
+    #     return reverse('index')# '/progress/'
+    #     # return '/'
 
 
 def register_request(request):
@@ -174,7 +182,8 @@ def register_request(request):
         form = NewUserForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = True  # Activate the user by default
+            user.is_active = True # Activate the user by default
+            user.is_verified = False  
             user.save()
             
             # Generate a random 4-digit code
@@ -202,6 +211,9 @@ def register_request(request):
     context["register_form"] = form
     return render(request=request, template_name="registration/register.html", context=context)
 
+
+User = CustomUser()
+
 def verification_page(request):
     user_email = request.session.get('user_email')  # Retrieve user email from the session
     if request.method == 'POST':
@@ -216,6 +228,10 @@ def verification_page(request):
             if entered_code == stored_code:
                 # Verification successful
                 # Redirect to success page or desired page
+                user_email = request.session.get('user_email')
+                user = User.objects.get(email=user_email)
+                user.is_verified = True
+                user.save()
                 return redirect("index")
             else:
                 # Invalid verification code
