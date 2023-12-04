@@ -57,7 +57,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 query_watch = None
-
+from django.contrib.auth.decorators import login_required
 @api_view(['GET', ])
 def customer_list(request):
     if request.method == 'GET':
@@ -174,13 +174,16 @@ def register_request(request):
         form = NewUserForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = True  # Deactivate the user until verification is complete
+            user.is_active = True  # Activate the user by default
             user.save()
             
             # Generate a random 4-digit code
             verification_code = f"{random.randint(1000, 9999)}"
             print(f"Verification Code for {user.email}: {verification_code}")
             request.session['verification_code'] = verification_code
+            
+            # Store the user email in the session
+            request.session['user_email'] = user.email  # Store the user email in the session
             
             # Send the verification code to the user's email
             send_mail(
@@ -191,8 +194,6 @@ def register_request(request):
                 fail_silently=False,
             )
             
-            # Store the verification code in the user's profile or session for comparison later
-            
             # Redirect to the verification page where the user will input the code
             return redirect("verification_page")
         context['form_errors'] = form.errors
@@ -202,6 +203,7 @@ def register_request(request):
     return render(request=request, template_name="registration/register.html", context=context)
 
 def verification_page(request):
+    user_email = request.session.get('user_email')  # Retrieve user email from the session
     if request.method == 'POST':
         form = VerificationForm(request.POST)
         if form.is_valid():
@@ -222,7 +224,24 @@ def verification_page(request):
                 return redirect("verification_page")
     else:
         form = VerificationForm()
-    return render(request, 'registration/verification.html', {'verification_form': form})
+    return render(request, 'registration/verification.html', {'verification_form': form, 'user_email': user_email})
+
+def resend_verification_code(request):
+    user_email = request.session.get('user_email')  # Retrieve user email from the session
+    verification_code = f"{random.randint(1000, 9999)}"
+    print(f"New Verification Code for {user_email}: {verification_code}")
+    request.session['verification_code'] = verification_code
+    
+    # Send the new verification code to the user's email
+    send_mail(
+                'Verification Code',
+                f'Your verification code is: {verification_code}',
+                'beautyskincarec@gmail.com',  # Replace with your sender email address
+                [user_email],  # Send to the newly created user's email
+                fail_silently=False,
+            )
+    
+    return JsonResponse({'message': 'Verification code resent successfully'})
 
 
 def index(request):

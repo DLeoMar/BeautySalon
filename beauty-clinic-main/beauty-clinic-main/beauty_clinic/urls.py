@@ -25,6 +25,7 @@ from django.contrib.auth.views import LogoutView
 
 
 
+
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'customer', views.CustomerViewSet)
 router.register(r'upload_customer_image', views.UploadCustomerImageViewSet)
@@ -51,6 +52,7 @@ urlpatterns = [
     path('products/', views.ProductsAndOrderView.as_view(), name='products'),
     path('checkout-history/', views.CheckoutHistoryView.as_view(), name='checkout_history'),
      path('checkout/', views.checkout, name='checkout'),
+     path('resend-verification/', views.resend_verification_code, name='resend_verification'),
      
 
     # URL pattern for creating an order
