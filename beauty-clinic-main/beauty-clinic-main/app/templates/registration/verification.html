@@ -27,6 +27,9 @@
 </section>
 <script>
   document.getElementById('resendVerificationCode').addEventListener('click', function() {
+      // Disable the button
+      this.disabled = true;
+
       fetch('{% url "resend_verification" %}', {
           method: 'POST',
           headers: {
@@ -38,12 +41,20 @@
       .then(response => {
           // Handle response
           console.log('Verification code resent successfully.');
+
+          // Enable the button after a delay (e.g., 60 seconds)
+          setTimeout(() => {
+              this.disabled = false;
+          }, 60000); // 60 seconds in milliseconds
       })
       .catch(error => {
           // Handle error
           console.error('Error resending verification code:', error);
+
+          // Enable the button on error
+          this.disabled = false;
       });
   });
-  </script>
+</script>
 
 {% endblock %}

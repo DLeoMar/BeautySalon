@@ -579,5 +579,5 @@ def predict_sales(request):
         else:
             print("File not found:", pickle_file_path)
 
-    context = {'form': form, 'predictions': predictions}
+    context = {'form': form, 'predictions': predictions[0]}
     return render(request, 'admin/prediction_page.html', context)
