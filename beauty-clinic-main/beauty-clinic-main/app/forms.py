@@ -87,4 +87,10 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ('id', 'product', 'price', 'discount', 'quantity')
+
+class SalesPredictionForm(forms.Form):
+    units_sold = forms.IntegerField(label='Units Sold')
+    unit_price = forms.DecimalField(label='Unit Price')
+    order_year = forms.IntegerField(label='Order Year')
+    order_month = forms.IntegerField(label='Order Month')
         

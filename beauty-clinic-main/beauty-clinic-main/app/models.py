@@ -40,6 +40,7 @@ class Customer(models.Model):
     middlename = models.CharField(max_length=50, blank=True, null=True)
     # Field name made lowercase.
     lastname = models.CharField(max_length=50, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     
     mobile = models.CharField(max_length=15, blank=True, null=True, validators=[mobile_regex])

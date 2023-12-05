@@ -1,4 +1,5 @@
 from datetime import date
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import CreateAPIView
 import random
@@ -49,13 +50,19 @@ from django.templatetags.static import static
 from calendar import month_name
 import random
 from django.shortcuts import render, redirect
-from .forms import VerificationForm
+from .forms import SalesPredictionForm, VerificationForm
 from django.core.mail import send_mail
 from django.contrib.sessions.models import Session
 from datetime import datetime, timedelta
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import render
+import pickle
+import pandas as pd
+
+
+
 query_watch = None
 from django.contrib.auth.decorators import login_required
 @api_view(['GET', ])
@@ -157,23 +164,26 @@ def video_call(request, message_gc_id):
 
 
 class MyLoginView(LoginView):
-    # form_class=LoginForm
-    redirect_authenticated_user=True
-    template_name='registration/login.html'
+    redirect_authenticated_user = True
+    template_name = 'registration/login.html'
 
     def form_valid(self, form):
-        # Check if the user is authenticated and verified
-        if self.request.user.is_authenticated and self.request.user.is_verified:
-            return super().form_valid(form)
-        else:
-            messages.error(self.request, 'Please verify your account before logging in.')
-            return redirect('verification_page')
+        # Proceed with regular login
+        response = super().form_valid(form)
 
-    # def get_success_url(self):
-    #     # write your logic here
-    #     # if self.request.user.is_superuser:
-    #     return reverse('index')# '/progress/'
-    #     # return '/'
+        # Check if the user is authenticated and store email in the session if not verified
+        if self.request.user.is_authenticated and not self.request.user.is_verified:
+            user_email = self.request.user.email
+            self.request.session['user_email'] = user_email  # Store user email in the session
+
+        return response  
+
+    def get_success_url(self):
+        if self.request.user.is_authenticated and self.request.user.is_verified:
+            return reverse('index')  # Redirect to index page after successful login and verification
+        else:
+            # Redirect to some other page if needed for unverified users
+            return reverse('verification_page')
 
 
 def register_request(request):
@@ -212,8 +222,6 @@ def register_request(request):
     return render(request=request, template_name="registration/register.html", context=context)
 
 
-User = CustomUser()
-
 def verification_page(request):
     user_email = request.session.get('user_email')  # Retrieve user email from the session
     if request.method == 'POST':
@@ -227,12 +235,15 @@ def verification_page(request):
             # Compare entered_code with the stored verification code
             if entered_code == stored_code:
                 # Verification successful
-                # Redirect to success page or desired page
-                user_email = request.session.get('user_email')
-                user = User.objects.get(email=user_email)
-                user.is_verified = True
-                user.save()
-                return redirect("index")
+                # Update user verification status to True
+                try:
+                    user = CustomUser.objects.get(email=user_email)
+                    user.is_verified = True
+                    user.save()
+                    return redirect("index")
+                except CustomUser.DoesNotExist:
+                    # Handle case where user with provided email does not exist
+                    pass
             else:
                 # Invalid verification code
                 # Display error message and redirect back to verification page
@@ -250,8 +261,8 @@ def resend_verification_code(request):
     
     # Send the new verification code to the user's email
     send_mail(
-                'Verification Code',
-                f'Your verification code is: {verification_code}',
+                'New Verification Code',
+                f'Your new verification code is: {verification_code}',
                 'beautyskincarec@gmail.com',  # Replace with your sender email address
                 [user_email],  # Send to the newly created user's email
                 fail_silently=False,
@@ -528,3 +539,36 @@ def orders_by_product_month_ajax(request):
     labels = [datetime(current_year, month, 1).strftime('%B') if month is not None else '' for month in range(1, 13)]
 
     return JsonResponse({'data': chart_data, 'labels': labels})
+
+def predict_sales(request):
+    form = SalesPredictionForm(request.POST or None)
+    predictions = None
+    pickle_file_path = os.path.join(settings.BASE_DIR, 'assets', 'linear_regression_model2.pkl')
+    
+    if request.method == 'POST' and form.is_valid():
+        # Retrieve user input from the form
+        units_sold = form.cleaned_data['units_sold']
+        unit_price = form.cleaned_data['unit_price']
+        order_year = form.cleaned_data['order_year']
+        order_month = form.cleaned_data['order_month']
+
+        # Load the saved model
+        if os.path.exists(pickle_file_path):
+            with open(pickle_file_path, 'rb') as file:
+                loaded_model = pickle.load(file)
+
+            # Prepare user input as DataFrame for prediction
+            new_data = pd.DataFrame({
+                'Units_Sold': [units_sold],
+                'Unit_Price': [unit_price],
+                'Order_Year': [order_year],
+                'Order_Month': [order_month]
+            })
+
+            # Make predictions using the loaded model
+            predictions = loaded_model.predict(new_data)
+        else:
+            print("File not found:", pickle_file_path)
+
+    context = {'form': form, 'predictions': predictions}
+    return render(request, 'admin/prediction_page.html', context)

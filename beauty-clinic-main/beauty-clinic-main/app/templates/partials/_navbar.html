@@ -45,37 +45,44 @@
                         <span class="ms-1  d-sm-inline">Admin</span>
                     </a>
                 </li>
+                <li class="nav-item mr-3">
+                    <a href="{% url 'predict_sales' %}" class="nav-link align-middle px-0">
+                        <span class="ms-1  d-sm-inline">Sale Predictions</span>
+                    </a>
+                </li>
                 {% else %}
-                <li class="nav-item mr-3">
-                    <a href="{% url 'appointment' %}" class="nav-link align-middle px-0">
-                         <span class="ms-1  d-sm-inline">New Appointment</span>
-                    </a>
-                </li>
-                <li class="nav-item mr-3">
-                    <a href="{% url 'appointment_list' %}" class="nav-link align-middle px-0">
-                        <span class="ms-1  d-sm-inline">My Appointments</span>
-                    </a>
-                </li>
-                <li class="nav-item mr-3">
-                    <a href="{% url 'products' %}" class="nav-link align-middle px-0">
-                        <span class="ms-1  d-sm-inline">Products</span>
-                    </a>
-                </li>
-                <li class="nav-item mr-3">
-                    <a href="{% url 'services' %}" class="nav-link align-middle px-0">
-                        <span class="ms-1  d-sm-inline">Services</span>
-                    </a>
-                </li>
-                <li class="nav-item mr-3">
-                    <a href="{% url 'orders' %}" class="nav-link align-middle px-0">
-                        <span class="ms-1  d-sm-inline">Cart</span>
-                    </a>
-                </li>
-                <li class="nav-item mr-3">
-                    <a href="{% url 'checkout_history' %}" class="nav-link align-middle px-0">
-                        <span class="ms-1  d-sm-inline">Orders</span>
-                    </a>
-                </li>
+                    {% if user.is_verified %}
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'appointment' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">New Appointment</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'appointment_list' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">My Appointments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'products' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'services' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'orders' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">Cart</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mr-3">
+                        <a href="{% url 'checkout_history' %}" class="nav-link align-middle px-0">
+                            <span class="ms-1  d-sm-inline">Orders</span>
+                        </a>
+                    </li>
+                    {% endif %}
                 
                 {% endif %}
             

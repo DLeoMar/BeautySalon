@@ -6,11 +6,11 @@
   <div class="container">
     <div class="row">
       <div class="col-12 col-md-8  mx-auto">
-        <div class="card">
-          <div class="card-header bg-warning text-black">
+        <div class="card  text-center">
+          <div class="card-header bg-warning text-black ">
             <h4><i class="fas fa-sign-in-alt"></i> Verification</h4>
           </div>
-          <div class="card-body" id="registerForm">
+          <div class="card-body " id="registerForm">
             <p>Email: {{ user_email }}</p>
             <form method="post">
                 {% csrf_token %}

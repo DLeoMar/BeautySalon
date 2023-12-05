@@ -78,12 +78,18 @@
                             <h5 class="card-text">Discount: {{ total_discount }}%</h5>
                             <h5 class="card-text">Quantity: {{ total_quantity }}pcs</h5>
                         </div>
-                        <div class="card-footer">
+                        <div class="card-footer ">
+                            <div class="align-self-end">
                             <form method="post" action="{% url 'checkout' %}">
                                 {% csrf_token %}
                                 <!-- Other form fields and elements -->
-                                <button type="submit">Check Out</button>
+                                {% if orders %}
+                                    <button type="submit">Check Out</button>
+                                {% else %}
+                                    <button type="submit" disabled>Check Out</button>
+                                {% endif %}
                             </form>
+                            </div>
                         </div>
                     </div>
                 </div>
