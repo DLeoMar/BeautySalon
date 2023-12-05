@@ -333,8 +333,13 @@ def checkout(request):
         total_price += item.product.price * item.quantity
         total_quantity += item.quantity
 
+        # Update the product stock after checkout
+        product = item.product
+        product.stock -= item.quantity
+        product.save()
+
     # Create a record in CheckoutHistory for the current checkout
-    CheckoutHistory.objects.create(
+    new_checkout = CheckoutHistory.objects.create(
         user=request.user,
         total_price=total_price,
         date_of_checkout=datetime.now(),
@@ -343,17 +348,21 @@ def checkout(request):
         # Add other fields as needed
     )
 
+
     cart_items.delete()  # Remove the products from the cart after checkout
-    
-    # Redirect to a success page or the checkout history page
-    return render(request, 'pages/checkOut.html')
+    checkout_history_data = CheckoutHistory.objects.filter(id=new_checkout.id)
+
+    if checkout_history_data.exists():
+        # Pass checkout history data to the template
+        return render(request, 'pages/checkOut.html', {'checkout_history_data': checkout_history_data})
+    else:
+        # Redirect to a success page if there's no checkout history data
+        return redirect('success_page') 
+
 
 def checkout_page(request):
-    # Fetch CheckoutHistory data
+    # Fetch all CheckoutHistory data for the logged-in user
     checkout_history_data = CheckoutHistory.objects.filter(user=request.user)
-    for checkout_item in checkout_history_data:
-        checkout_item.date_of_checkout = timezone.make_aware(checkout_item.date_of_checkout)
-
     # Pass checkout_history to the template
     return render(request, 'pages/checkOut.html', {'checkout_history_data': checkout_history_data})
 

@@ -159,6 +159,8 @@ class CheckoutHistory(models.Model):
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     total_quantity = models.PositiveIntegerField(default=0)
 
+ 
+
 class AppointmentActions(models.IntegerChoices):
     PENDING = 0, "Pending"
     ACCEPT = 1, "Accept"

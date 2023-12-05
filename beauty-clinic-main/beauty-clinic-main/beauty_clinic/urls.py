@@ -50,7 +50,7 @@ urlpatterns = [
     # path('products', views.ProductsAndOrderView.as_view(), name='products'),
     
     path('products/', views.ProductsAndOrderView.as_view(), name='products'),
-    path('checkout-history/', views.CheckoutHistoryView.as_view(), name='checkout_history'),
+    path('checkout-history/', views.checkout_page, name='checkout_history'),
     path('checkout/', views.checkout, name='checkout'),
     path('resend-verification/', views.resend_verification_code, name='resend_verification'),
     path('predict_sales/', views.predict_sales, name='predict_sales'),

@@ -44,7 +44,7 @@
                     <tbody>
                         {% for checkout_item in checkout_history_data %}
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
+                                <th >{{ checkout_item.id }}</th>
                                 <td>{{ checkout_item.date_of_checkout }}</td>
                                 <td>{{ checkout_item.discount }}</td>
                                 <td>{{ checkout_item.total_quantity }}</td>
