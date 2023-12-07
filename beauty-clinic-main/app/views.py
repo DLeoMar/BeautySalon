@@ -358,6 +358,20 @@ def checkout(request):
     else:
         # Redirect to a success page if there's no checkout history data
         return redirect('success_page') 
+    
+def delete_order(request, order_id):
+    # Assuming 'order_id' is passed in the URL or as a parameter
+
+    try:
+        order_to_delete = Order.objects.get(id=order_id)
+        order_to_delete.delete()
+        # Optionally, perform additional actions after deletion if needed
+
+        return redirect('orders')  # Redirect to a success page after deletion
+    
+    except Order.DoesNotExist:
+        # Handle the case where the order with the provided ID does not exist
+        return HttpResponse("Order does not exist", status=404)
 
 
 def checkout_page(request):
@@ -554,6 +568,9 @@ def predict_sales(request):
     predictions = None
     pickle_file_path = os.path.join(settings.BASE_DIR, 'assets', 'linear_regression_model3.pkl')
     
+    selected_year = None
+    selected_month = None
+
     if request.method == 'POST' and form.is_valid():
         # Retrieve user input from the form
         units_sold = form.cleaned_data['units_sold']
@@ -579,11 +596,20 @@ def predict_sales(request):
         else:
             print("File not found:", pickle_file_path)
 
+        # Set selected year and month for passing to the template
+        selected_year = order_year
+        selected_month = order_month
+
     if predictions is not None:
         # Format the prediction to two decimal places
         formatted_prediction = round(predictions[0], 2)
     else:
         formatted_prediction = None
 
-    context = {'form': form, 'predictions': formatted_prediction}
+    context = {
+        'form': form,
+        'predictions': formatted_prediction,
+        'selected_year': selected_year,
+        'selected_month': selected_month
+    }
     return render(request, 'admin/prediction_page.html', context)

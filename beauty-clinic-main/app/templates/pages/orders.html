@@ -28,7 +28,7 @@
         <div class="row">
             <h1>Cart</h1>
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered table-responsive">
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">#</th>
@@ -38,12 +38,13 @@
                             <th scope="col">Price</th>
                             <th scope="col">Discount</th>
                             <th scope="col">Quantity</th>
+                            <th scope="col">Action</th>
                             <!-- Add more table headers based on your Order model fields -->
                         </tr>
                     </thead>
                     <tbody>
                         {% for order in orders %}
-                            <tr>
+                            <tr id="orderRow_{{ order.id }}">
                                 <th scope="row">{{ forloop.counter }}</th>
                                 <td>{{ order.id }}</td>
                                 <td>{{ order.date }}</td>
@@ -51,6 +52,10 @@
                                 <td>{{ order.price }}</td>
                                 <td>{{ order.discount }}</td>
                                 <td>{{ order.quantity }}</td>
+                                <td>
+                                    <!-- Delete button -->
+                                    <button type="button" onclick="deleteOrder({{ order.id }})">Delete</button>
+                                </td>
                                 <!-- Add more table cells based on your Order model fields -->
                             </tr>
                         {% empty %}
@@ -122,6 +127,27 @@
                     // Handle error response
                 }
             });
+        </script>
+
+        <script>
+            function deleteOrder(orderId) {
+                // Use AJAX to send a request to delete the order
+                $.ajax({
+                    type: 'POST',
+                    url: `/delete_order/${orderId}/`, // Replace with your delete order URL
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}"
+                    },
+                    success: function(response) {
+                        // Handle success response by removing the deleted row from the table
+                        window.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(error);
+                    }
+                });
+            }        
         </script>
 
 

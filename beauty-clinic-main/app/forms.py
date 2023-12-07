@@ -1,3 +1,4 @@
+import datetime
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
@@ -89,8 +90,9 @@ class OrderForm(forms.ModelForm):
         fields = ('id', 'product', 'price', 'discount', 'quantity')
 
 class SalesPredictionForm(forms.Form):
-    units_sold = forms.IntegerField(label='Units Sold')
-    unit_price = forms.DecimalField(label='Unit Price')
-    order_year = forms.IntegerField(label='Order Year')
-    order_month = forms.IntegerField(label='Order Month')
+    units_sold = forms.IntegerField(label='Units Sold Today')
+    unit_price = forms.DecimalField(label='Unit Price Today')
+    current_year = datetime.datetime.now().year
+    order_year = forms.IntegerField(label='Order Year', min_value=current_year)
+    order_month = forms.IntegerField(label='Order Month', min_value=1, max_value=12)
         

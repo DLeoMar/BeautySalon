@@ -54,6 +54,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('resend-verification/', views.resend_verification_code, name='resend_verification'),
     path('predict_sales/', views.predict_sales, name='predict_sales'),
+     path('delete_order/<int:order_id>/', views.delete_order, name='delete_order'),
      
 
     # URL pattern for creating an order
