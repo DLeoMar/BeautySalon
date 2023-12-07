@@ -576,9 +576,14 @@ def predict_sales(request):
 
             # Make predictions using the loaded model
             predictions = loaded_model.predict(new_data)
-            formatted_prediction = round(predictions[0], 2)
         else:
             print("File not found:", pickle_file_path)
+
+    if predictions is not None:
+        # Format the prediction to two decimal places
+        formatted_prediction = round(predictions[0], 2)
+    else:
+        formatted_prediction = None
 
     context = {'form': form, 'predictions': formatted_prediction}
     return render(request, 'admin/prediction_page.html', context)
