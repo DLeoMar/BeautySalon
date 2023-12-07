@@ -552,7 +552,7 @@ def orders_by_product_month_ajax(request):
 def predict_sales(request):
     form = SalesPredictionForm(request.POST or None)
     predictions = None
-    pickle_file_path = os.path.join(settings.BASE_DIR, 'assets', 'linear_regression_model2.pkl')
+    pickle_file_path = os.path.join(settings.BASE_DIR, 'assets', 'linear_regression_model3.pkl')
     
     if request.method == 'POST' and form.is_valid():
         # Retrieve user input from the form
@@ -576,8 +576,9 @@ def predict_sales(request):
 
             # Make predictions using the loaded model
             predictions = loaded_model.predict(new_data)
+            formatted_prediction = round(predictions[0], 2)
         else:
             print("File not found:", pickle_file_path)
 
-    context = {'form': form, 'predictions': predictions}
+    context = {'form': form, 'predictions': formatted_prediction}
     return render(request, 'admin/prediction_page.html', context)
